@@ -82,7 +82,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       RGB_TOG, RGB_HUI, RGB_SAI, RGB_VAI, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,  KC_F12,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, XXXXXXX, XXXXXXX,                      KC_MRWD, KC_MPLY, KC_MFFD, KC_MUTE, KC_VOLD, KC_VOLU,
+      RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, XXXXXXX, XXXXXXX,                      KC_MRWD, KC_MPLY, KC_MFFD, KC_VOLD, KC_VOLU, KC_MUTE,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI, _______,  KC_SPC,     KC_ENT, _______, KC_RALT
                                       //`--------------------------'  `--------------------------'
@@ -126,6 +126,7 @@ int   current_wpm = 0;
 led_t led_usb_state;
 
 bool isSneaking = false;
+bool isBarking = false;
 bool isJumping  = false;
 bool showedJump = true;
 
@@ -207,7 +208,7 @@ static void render_luna(int LUNA_X, int LUNA_Y) {
         current_frame = (current_frame + 1) % 2;
 
         /* current status */
-        if (led_usb_state.caps_lock) {
+        if (isBarking) {
             oled_write_raw_P(bark[current_frame], ANIM_SIZE);
 
         } else if (isSneaking) {
@@ -255,7 +256,6 @@ static void print_logo_narrow(void) {
     wpm_str[1] = '0' + (n /= 10) % 10;
     wpm_str[0] = '0' + n / 10;
     oled_write(wpm_str, false);
-
     oled_set_cursor(0, 15);
     oled_write(" wpm", false);
 }
@@ -266,17 +266,6 @@ static void print_status_narrow(void) {
     oled_write_raw_P(mac_logo, sizeof(mac_logo));
 
     oled_set_cursor(0, 3);
-
-    switch (get_highest_layer(default_layer_state)) {
-        case _QWERTY:
-            oled_write("QWRTY", false);
-            break;
-        // case _GAMING:
-        //     oled_write("GAMES", false);
-        //     break;
-        default:
-            oled_write("UNDEF", false);
-    }
 
     oled_set_cursor(0, 5);
 
@@ -304,7 +293,6 @@ static void print_status_narrow(void) {
 
     /* caps lock */
     oled_set_cursor(0, 8);
-    oled_write("CPSLK", led_usb_state.caps_lock);
 
     /* KEYBOARD PET RENDER START */
 
